@@ -16,8 +16,7 @@ import { RegisterDto } from './dto/register.dto';
 
 const COOKIE_OPTS = {
   httpOnly: true,
-  sameSite: 'none' as const,
-  secure: true,
+  sameSite: 'lax' as const,
   path: '/',
 };
 
@@ -74,8 +73,6 @@ export class AuthController {
   }
 
   private setTokenCookies(res: Response, access: string, refresh: string): void {
-    const secure = process.env.NODE_ENV === 'production';
-
     res.cookie('access_token', access, {
       ...COOKIE_OPTS,
       maxAge: 15 * 60 * 1000,
