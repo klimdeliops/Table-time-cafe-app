@@ -6,5 +6,6 @@ RUN npm install
 COPY backend/ .
 RUN ./node_modules/.bin/prisma generate
 RUN npm run build
+RUN chmod +x start.sh
 EXPOSE 3000
-CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node -e \"const{PrismaClient}=require('@prisma/client');const p=new PrismaClient();p.restaurant.count().then(n=>{p.\$disconnect();process.exit(n>0?0:1)})\" || npm run seed; node dist/main"]
+CMD ["sh", "start.sh"]
