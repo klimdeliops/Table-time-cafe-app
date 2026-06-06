@@ -1,0 +1,294 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TABLE MAP ANIMATIONS (existing)
+───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes wave-ping {
+  0%   { transform: scale(1);   opacity: 0.50; }
+  60%  { transform: scale(3.2); opacity: 0.08; }
+  100% { transform: scale(4.2); opacity: 0;    }
+}
+
+.table-wave {
+  animation: wave-ping 2.8s cubic-bezier(0.12, 0.5, 0.35, 1) infinite both;
+  will-change: transform, opacity;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   GLASSMORPHISM SYSTEM
+   iOS / Drinkit aesthetic — soft blur, translucent warm whites, layered depth
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Navigation bar */
+.glass-nav {
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  background-color: rgba(255, 255, 255, 0.82);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Standard content card */
+.glass-card {
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  background-color: rgba(255, 255, 255, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.48);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* Modal / overlay panel */
+.glass-modal {
+  backdrop-filter: blur(28px) saturate(2);
+  -webkit-backdrop-filter: blur(28px) saturate(2);
+  background-color: rgba(255, 255, 255, 0.90);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.10),
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* Tinted card — warm cream tint for hero/landing overlays */
+.glass-card-warm {
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  background-color: rgba(252, 249, 234, 0.78);
+  border: 1px solid rgba(255, 162, 57, 0.2);
+  box-shadow:
+    0 8px 32px rgba(75, 46, 43, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Interactive button */
+.glass-button {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.glass-button:hover {
+  background-color: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  transform: translateY(-1px);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Input field */
+.glass-input {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(255, 255, 255, 0.80);
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 162, 57, 0.55);
+  box-shadow: 0 0 0 3px rgba(255, 162, 57, 0.14);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   ANIMATION UTILITIES
+───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0);    }
+  50%       { transform: translateY(-6px); }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease both;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% auto;
+  animation: shimmer 2s linear infinite;
+}
+
+.animate-float {
+  animation: float 3.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Hero ghost button (dark section, translucent white) */
+.hero-ghost-btn {
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  background-color: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  color: rgba(252, 249, 234, 0.88);
+  transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.hero-ghost-btn:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.hero-ghost-btn:active {
+  transform: translateY(0);
+}
+
+/* Amber primary button */
+.btn-amber {
+  background: linear-gradient(135deg, #FFA239 0%, #f07c0c 100%);
+  box-shadow: 0 4px 20px rgba(255, 162, 57, 0.38), 0 1px 4px rgba(0, 0, 0, 0.18);
+  color: #fff;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.btn-amber:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(255, 162, 57, 0.48), 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.btn-amber:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 12px rgba(255, 162, 57, 0.30);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TRANSITION HELPERS
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Apply to any glass element that changes blur/background on interaction */
+.transition-glass {
+  transition:
+    backdrop-filter 0.3s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TOAST ANIMATION
+───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   SCROLLBAR HIDE (used by horizontal scroll areas)
+───────────────────────────────────────────────────────────────────────────── */
+
+.scrollbar-hide,
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   AUTH PAGE AMBIENT BACKGROUND
+───────────────────────────────────────────────────────────────────────────── */
+
+.auth-blob-1 {
+  position: absolute;
+  top: -10%;
+  left: -15%;
+  width: 55vw;
+  height: 55vw;
+  max-width: 520px;
+  max-height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 162, 57, 0.18) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+.auth-blob-2 {
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 560px;
+  max-height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(151, 168, 122, 0.14) 0%, transparent 70%);
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.auth-blob-3 {
+  position: absolute;
+  top: 40%;
+  left: 55%;
+  width: 30vw;
+  height: 30vw;
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(252, 220, 160, 0.22) 0%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FOCUS RING — consistent across all interactive elements
+───────────────────────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid rgba(255, 162, 57, 0.7);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOBILE PERFORMANCE — eliminate 300ms tap delay on touch devices
+───────────────────────────────────────────────────────────────────────────── */
+
+button, a, [role="button"] {
+  touch-action: manipulation;
+}

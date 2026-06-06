@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+
+# Build outputs
+dist/
+.next/
+out/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma generated (regenerated on install)
+**/generated/
+
+# TypeScript cache
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+**/tsconfig.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.suo
+*.user
