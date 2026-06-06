@@ -7,4 +7,4 @@ COPY backend/ .
 RUN ./node_modules/.bin/prisma generate
 RUN npm run build
 EXPOSE 3000
-CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && npm run seed && node dist/main"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && node dist/main"]
