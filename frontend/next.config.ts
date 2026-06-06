@@ -1,8 +1,6 @@
 import type { NextConfig } from 'next';
-import path from 'path';
 
 const nextConfig: NextConfig = {
-  outputFileTracingRoot: path.join(__dirname, '../../'),
   devIndicators: false,
   images: {
     // Allow any HTTPS image source for dish images stored externally.
