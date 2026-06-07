@@ -1,0 +1,44 @@
+\documentclass[14pt, a4paper]{extarticle}
+\usepackage{mospolytech_coursework}
+\usepackage{float}
+
+% Определение данных
+\newcommand{\theme}{%
+    Разработка веб-приложения для управления заказами, бронированием столиков и предзаказом в сети кафе%
+}
+\newcommand{\subject}{Разработка веб-приложений}
+\newcommand{\student}{Мусаелян Анжелика}
+\newcommand{\group}{241-3211}
+\newcommand{\teacher}{Кружалов Алексей Сергеевич}
+
+\begin{document}
+
+% Титульный лист
+\include{title}
+
+% Задание
+\includepdf[pages=-]{task.pdf}
+
+% Содержание
+\tableofcontents
+
+% Введение
+\include{intro}
+
+% Основная часть
+\include{chapter1}
+\include{chapter2}
+\include{chapter3}
+
+% Заключение
+\include{conclusion}
+
+% Список литературы
+\nocite{*}
+\bibliographystyle{ugost2003}
+\bibliography{refs}
+
+% Приложения (при необходимости)
+% \include{appendix}
+
+\end{document}
