@@ -1,0 +1,107 @@
+\begin{thebibliography}{10}
+\def\selectlanguageifdefined#1{
+\expandafter\ifx\csname date#1\endcsname\relax
+\else\selectlanguage{#1}\fi}
+\providecommand*{\href}[2]{{\small #2}}
+\providecommand*{\url}[1]{{\small #1}}
+\providecommand*{\BibUrl}[1]{\url{#1}}
+\providecommand{\BibAnnote}[1]{}
+\providecommand*{\BibEmph}[1]{#1}
+
+\bibitem{gost7_32_2017}
+\selectlanguageifdefined{russian}
+ГОСТ~7.32-2017. Отчёт о
+  научно-исследовательской работе.
+  Структура и правила оформления [{Текст}].
+  "---
+\newblock 2017.
+
+\bibitem{gost7_0_5_2008}
+\selectlanguageifdefined{russian}
+ГОСТ~Р~7.0.5-2008. Библиографическая ссылка.
+  Общие требования и правила составления
+  [{Текст}]. "---
+\newblock 2008.
+
+\bibitem{nestjs_docs}
+\selectlanguageifdefined{english}
+NestJS Documentation: Overview [Electronic resource], Kamil My\'{s}liwiec. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://docs.nestjs.com} (online; accessed: 07.06.2026).
+
+\bibitem{nodejs_docs}
+\selectlanguageifdefined{english}
+Node.js Documentation v20 LTS [Electronic resource], OpenJS Foundation. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://nodejs.org/en/docs} (online; accessed:
+  07.06.2026).
+
+\bibitem{prisma_docs}
+\selectlanguageifdefined{english}
+Prisma ORM Documentation [Electronic resource], Prisma Data, Inc. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://www.prisma.io/docs} (online; accessed:
+  07.06.2026).
+
+\bibitem{postgresql_docs}
+\selectlanguageifdefined{english}
+PostgreSQL 16 Documentation [Electronic resource], The PostgreSQL Global
+  Development Group. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://www.postgresql.org/docs/16} (online; accessed:
+  07.06.2026).
+
+\bibitem{rfc7519}
+\selectlanguageifdefined{english}
+{RFC}~7519: JSON Web Token ({JWT}) [Text]~: Rep.~/ Internet Engineering Task
+  Force~; Executor: M.~Jones, J.~Bradley, N.~Sakimura~: 2015. "---
+\newblock URL: \BibUrl{https://datatracker.ietf.org/doc/html/rfc7519}.
+
+\bibitem{argon2_spec}
+\selectlanguageifdefined{english}
+\BibEmph{Biryukov,~Alex}. Argon2: The Memory-Hard Function for Password Hashing
+  and Other Applications [Electronic resource]. "---
+\newblock [S.\ l.~: s.\ n.], 2015. "---
+\newblock URL:
+  \BibUrl{https://github.com/P-H-C/phc-winner-argon2/blob/master/argon2-specs.pdf}
+  (online; accessed: 07.06.2026).
+
+\bibitem{nextjs_docs}
+\selectlanguageifdefined{english}
+Next.js 15 Documentation [Electronic resource], Vercel, Inc. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://nextjs.org/docs} (online; accessed: 07.06.2026).
+
+\bibitem{react_docs}
+\selectlanguageifdefined{english}
+React Documentation [Electronic resource], Meta Open Source. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://react.dev} (online; accessed: 07.06.2026).
+
+\bibitem{typescript_docs}
+\selectlanguageifdefined{english}
+TypeScript Documentation [Electronic resource], Microsoft Corporation. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://www.typescriptlang.org/docs} (online; accessed:
+  07.06.2026).
+
+\bibitem{docker_docs}
+\selectlanguageifdefined{english}
+Docker Documentation [Electronic resource], Docker, Inc. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://docs.docker.com} (online; accessed: 07.06.2026).
+
+\bibitem{railway_docs}
+\selectlanguageifdefined{english}
+Railway Documentation [Electronic resource], Railway Corp. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://docs.railway.app} (online; accessed:
+  07.06.2026).
+
+\bibitem{vercel_docs}
+\selectlanguageifdefined{english}
+Vercel Documentation [Electronic resource], Vercel, Inc. "---
+\newblock [S.\ l.~: s.\ n.]. "---
+\newblock URL: \BibUrl{https://vercel.com/docs} (online; accessed: 07.06.2026).
+
+\end{thebibliography}
