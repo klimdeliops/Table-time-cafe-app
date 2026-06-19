@@ -342,7 +342,7 @@ export default function TablesPage() {
 
       <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row gap-5 items-start relative z-10 pt-8">
 
-        {/* ── LEFT: Floor map ─────────────────────────────────── */}
+        {/* LEFT: Floor map */}
         <div className="flex-1 min-w-0 w-full">
           <div
             ref={floorRef}
@@ -381,7 +381,7 @@ export default function TablesPage() {
           </div>
         </div>
 
-        {/* ── RIGHT: Booking panel ────────────────────────────── */}
+        {/* RIGHT: Booking panel*/}
         <aside className="w-full lg:w-[300px] xl:w-[320px] flex-shrink-0 lg:sticky lg:top-[80px]">
           <div className="rounded-2xl p-5 flex flex-col gap-5" style={panelStyle}>
 
