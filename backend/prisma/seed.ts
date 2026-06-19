@@ -1,11 +1,8 @@
+/// <reference types="node" />
 import { PrismaClient, DishCategory, Role, TableStatus } from '@prisma/client';
 import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient();
-
-// ---------------------------------------------------------------------------
-// Data definitions
-// ---------------------------------------------------------------------------
 
 const RESTAURANT = {
   name: 'Table & Time',
@@ -134,10 +131,6 @@ const USERS = [
   },
 ];
 
-// ---------------------------------------------------------------------------
-// Seed functions
-// ---------------------------------------------------------------------------
-
 async function seedRestaurantAndTables() {
   console.log('\n🏠 Seeding restaurant...');
 
@@ -237,11 +230,6 @@ async function seedUsers() {
     console.log(`  ✔ Created ${user.role}: ${user.email}`);
   }
 }
-
-// ---------------------------------------------------------------------------
-// Main
-// ---------------------------------------------------------------------------
-
 async function main() {
   console.log('🌱 Starting seed...');
 
