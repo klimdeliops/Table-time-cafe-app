@@ -8,11 +8,6 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../auth/types/auth-user.type';
 
-/**
- * Verifies the requesting user owns the order at :id, or is WAITER / ADMIN.
- * Attaches the raw order to request.order for downstream use.
- * Must be applied AFTER JwtAuthGuard so req.user is populated.
- */
 @Injectable()
 export class OrderAccessGuard implements CanActivate {
   constructor(private readonly prisma: PrismaService) {}

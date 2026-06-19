@@ -45,7 +45,7 @@ export class TablesController {
     return this.tablesService.createTable(dto);
   }
 
-  // PATCH /tables/:id — ADMIN (capacity, x, y — not status)
+  // PATCH /tables/:id — ADMIN
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -56,7 +56,7 @@ export class TablesController {
     return this.tablesService.updateTable(id, dto);
   }
 
-  // PATCH /tables/:id/status — ADMIN (direct override; intended for CLEANING)
+  // PATCH /tables/:id/status — ADMIN
   @Patch(':id/status')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)

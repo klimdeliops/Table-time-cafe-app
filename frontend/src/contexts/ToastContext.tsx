@@ -7,8 +7,6 @@ import {
   useState,
 } from 'react';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 export type ToastType = 'success' | 'error' | 'info';
 
 interface ToastItem {
@@ -21,15 +19,11 @@ interface ToastContextValue {
   addToast: (message: string, type?: ToastType) => void;
 }
 
-// ── Context ───────────────────────────────────────────────────────────────────
-
 const ToastContext = createContext<ToastContextValue>({ addToast: () => {} });
 
 export function useToast() {
   return useContext(ToastContext);
 }
-
-// ── Icons ─────────────────────────────────────────────────────────────────────
 
 function CheckIcon() {
   return (
@@ -58,8 +52,6 @@ function InfoIcon() {
     </svg>
   );
 }
-
-// ── Toast item component ──────────────────────────────────────────────────────
 
 const TOAST_STYLES: Record<ToastType, { bg: string; icon: React.ReactNode }> = {
   success: {
@@ -103,8 +95,6 @@ function Toast({ toast, onDismiss }: { toast: ToastItem; onDismiss: (id: string)
   );
 }
 
-// ── Provider (includes container) ─────────────────────────────────────────────
-
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
 
@@ -121,7 +111,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      {/* Toast container — fixed, pointer-events-none so it doesn't block UI */}
       <div
         aria-label="Notifications"
         className="fixed bottom-6 right-4 z-[100] flex flex-col gap-2 items-end pointer-events-none"

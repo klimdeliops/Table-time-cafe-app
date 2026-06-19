@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -42,7 +42,6 @@ const RING_CLS: Record<TableStatus, string> = {
   CLEANING: 'ring-gray-300',
 };
 
-// Returns the display status respecting statusExpiresAt expiry
 function getEffectiveStatus(table: Table, now: number): TableStatus {
   if (table.statusExpiresAt) {
     const expiresMs = new Date(table.statusExpiresAt).getTime();
@@ -51,7 +50,6 @@ function getEffectiveStatus(table: Table, now: number): TableStatus {
   return table.status;
 }
 
-// "освободится через X мин Y сек" countdown from expiresAt
 function formatCountdown(expiresAt: string, now: number): string {
   const remaining = Math.max(0, new Date(expiresAt).getTime() - now);
   const totalSec  = Math.ceil(remaining / 1000);
@@ -61,7 +59,6 @@ function formatCountdown(expiresAt: string, now: number): string {
   return `освободится через ${secs} сек`;
 }
 
-// Ticks every second; used by TableDot for live color updates
 function useNow(): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -132,7 +129,6 @@ export default function TablesPage() {
 
   const floorRef = useRef<HTMLDivElement>(null);
 
-  // ── Load tables (public; don't redirect on 401) ────────────────────────────
   useEffect(() => {
     apiFetch<Table[]>('/api/tables')
       .then(setTables)
@@ -142,7 +138,6 @@ export default function TablesPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // ── Filter logic ───────────────────────────────────────────────────────────
   useEffect(() => {
     const guestsActive = guests >= 1;
     const timeComplete = !!(date && startTime && endTime && startTime < endTime);
@@ -158,7 +153,6 @@ export default function TablesPage() {
       return;
     }
 
-    // CLEANING is always blocked; OCCUPIED is blocked only within the 2-hour turnover window
     const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
     const requestedStartMs = timeComplete
       ? new Date(`${date}T${startTime}`).getTime()
@@ -172,7 +166,6 @@ export default function TablesPage() {
     const blockedByStatus = new Set(
       tables.filter((t) => {
         if (t.status === 'CLEANING') {
-          // If statusExpiresAt is missing, fall back to: cleaning ends at most 10 min from now
           const cleaningEndsMs = t.statusExpiresAt
             ? new Date(t.statusExpiresAt).getTime()
             : Date.now() + CLEANING_MAX_MS;
@@ -217,8 +210,7 @@ export default function TablesPage() {
             const capableIds = new Set(tables.filter((t) => t.capacity >= guests).map((t) => t.id));
             ids = ids.filter((id) => capableIds.has(id));
           }
-          // Always exclude physically blocked tables
-          ids = ids.filter((id) => !blockedByStatus.has(id));
+                ids = ids.filter((id) => !blockedByStatus.has(id));
           setAvailableIds(new Set(ids));
         })
         .catch(() => setAvailableIds(new Set()))
@@ -228,7 +220,6 @@ export default function TablesPage() {
     return () => clearTimeout(timer);
   }, [date, startTime, endTime, guests, tables]);
 
-  // ── Auth-gated table selection ─────────────────────────────────────────────
   function handleTableSelect(table: Table) {
     if (!user) {
       router.push('/login?redirect=/tables');
@@ -237,7 +228,6 @@ export default function TablesPage() {
     setSelectedTable(table);
   }
 
-  // ── Popular time chips ─────────────────────────────────────────────────────
   const CHIPS: TimeChip[] = buildTimeChips();
 
   function applyChip(chip: TimeChip) {
@@ -250,7 +240,6 @@ export default function TablesPage() {
     (c) => c.date === date && c.startTime === startTime && c.endTime === endTime,
   )?.key ?? null;
 
-  // ── Filter active check ────────────────────────────────────────────────────
   const filterActive = availableIds !== null;
   const hasAnyFilter = !!(date || startTime || endTime || guests);
 
@@ -566,13 +555,10 @@ function TableDot({
   const [hovered, setHovered] = useState(false);
   const now = useNow();
 
-  // Real-time status (respects statusExpiresAt countdown)
   const displayStatus = getEffectiveStatus(table, now);
 
-  // Visual status: when filter is active and table is available for that slot → show GREEN
   const visualStatus: TableStatus = (filterActive && available) ? 'FREE' : displayStatus;
 
-  // Use visualStatus so a CLEANING table that's available for the chosen slot is clickable
   const clickable = available && visualStatus !== 'CLEANING';
 
   const glowOpacity = !clickable ? 0 : selected ? 0.60 : hovered ? 0.42 : 0.10;

@@ -8,13 +8,11 @@ import {
   useState,
 } from 'react';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 export interface CartDish {
   id: string;
   name: string;
   nameEn: string | null;
-  price: string; // Prisma Decimal → JSON string
+  price: string;
   category: string;
   image: string | null;
   isAvailable: boolean;
@@ -35,8 +33,6 @@ interface CartContextValue {
   totalPrice: number;
 }
 
-// ── Context ──────────────────────────────────────────────────────────────────
-
 export const CartContext = createContext<CartContextValue>({
   items:      [],
   addItem:    () => {},
@@ -50,8 +46,6 @@ export const CartContext = createContext<CartContextValue>({
 export function useCart(): CartContextValue {
   return useContext(CartContext);
 }
-
-// ── Provider ─────────────────────────────────────────────────────────────────
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);

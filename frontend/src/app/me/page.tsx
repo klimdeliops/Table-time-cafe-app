@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -8,8 +8,6 @@ import { ProtectedPage } from '@/components/ProtectedPage';
 import { apiFetch, ApiError } from '@/shared/api/client';
 import { formatDateTime, formatRubles, formatDate, formatTime } from '@/lib/formatters';
 import type { Locale } from '@/lib/i18n';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 type ResStatus  = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED' | 'NO_SHOW';
 type OrdStatus  = 'CREATED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
@@ -45,8 +43,6 @@ interface Order {
   createdAt: string;
 }
 
-// ── Status styling ────────────────────────────────────────────────────────────
-
 const RES_STATUS_COLORS: Record<ResStatus, string> = {
   PENDING:   'bg-amber-50  text-amber-700  border-amber-200',
   CONFIRMED: 'bg-green-50   text-green-700  border-green-200',
@@ -66,8 +62,6 @@ const ORD_STATUS_COLORS: Record<OrdStatus, string> = {
 
 const ACTIVE_ORD = new Set<OrdStatus>(['CREATED', 'CONFIRMED', 'PREPARING', 'READY']);
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function ProfilePage() {
   return (
     <ProtectedPage>
@@ -75,8 +69,6 @@ export default function ProfilePage() {
     </ProtectedPage>
   );
 }
-
-// ── Dashboard ─────────────────────────────────────────────────────────────────
 
 function ProfileDashboard() {
   const { user, logout } = useAuth();
@@ -162,8 +154,6 @@ function ProfileDashboard() {
   );
 }
 
-// ── Summary card ──────────────────────────────────────────────────────────────
-
 function SummaryCard({
   user, t, locale, onLogout,
   upcomingCount, activeCount, totalReservations, totalOrders, loading,
@@ -210,7 +200,6 @@ function SummaryCard({
                 {t('profile.memberSince')} {joinedDate}
               </span>
             </div>
-            {/* Action buttons — only show on mobile/sm */}
             <div className="flex gap-2 mt-3 sm:hidden flex-wrap">
               <Link href="/menu"   className="inline-flex items-center gap-1 py-2 px-3 rounded-xl text-xs font-medium text-brand-espresso bg-brand-espresso/8 hover:bg-brand-espresso/14 transition-colors">🍽 {t('profile.browseMenu')}</Link>
               <Link href="/tables" className="inline-flex items-center gap-1 py-2 px-3 rounded-xl text-xs font-medium text-brand-espresso bg-brand-espresso/8 hover:bg-brand-espresso/14 transition-colors">📅 {t('profile.reserveTable')}</Link>
@@ -219,7 +208,6 @@ function SummaryCard({
           </div>
         </div>
 
-        {/* Right: action buttons — desktop */}
         <div className="hidden sm:flex flex-col gap-2 justify-center px-6 py-6 border-l border-brand-espresso/8">
           <Link href="/menu"   className="flex items-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium text-brand-espresso bg-brand-espresso/8 hover:bg-brand-espresso/14 transition-colors whitespace-nowrap"><span>🍽</span>{t('profile.browseMenu')}</Link>
           <Link href="/tables" className="flex items-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium text-brand-espresso bg-brand-espresso/8 hover:bg-brand-espresso/14 transition-colors whitespace-nowrap"><span>📅</span>{t('profile.reserveTable')}</Link>
@@ -227,7 +215,6 @@ function SummaryCard({
         </div>
       </div>
 
-      {/* Stats bar */}
       <div className="border-t border-brand-espresso/8 grid grid-cols-4">
         {stats.map(({ label, value, icon, accent }) => (
           <div key={label} className="flex flex-col items-center gap-0.5 py-4 px-2 text-center">
@@ -244,8 +231,6 @@ function SummaryCard({
     </div>
   );
 }
-
-// ── Upcoming reservations ──────────────────────────────────────────────────────
 
 function UpcomingReservationsSection({
   reservations, locale, t,
@@ -271,7 +256,6 @@ function UpcomingReservationsSection({
           {reservations.map((r) => (
             <div key={r.id} className="space-y-2">
               <ReservationRow r={r} locale={locale} t={t} />
-              {/* CTA to order food for this reservation */}
               <Link
                 href={`/order/new?tableId=${r.table.id}&orderType=DINE_IN`}
                 className="flex items-center gap-2 py-2 px-3 rounded-xl text-xs font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200/70 transition-colors"
@@ -286,8 +270,6 @@ function UpcomingReservationsSection({
     </div>
   );
 }
-
-// ── Active orders ─────────────────────────────────────────────────────────────
 
 function ActiveOrdersSection({
   orders, locale, t, onCancel,
@@ -318,8 +300,6 @@ function ActiveOrdersSection({
     </div>
   );
 }
-
-// ── History section (collapsible) ─────────────────────────────────────────────
 
 const HISTORY_SHOW = 3;
 
@@ -361,8 +341,6 @@ function HistorySection({
   );
 }
 
-// ── Reservation row ───────────────────────────────────────────────────────────
-
 function ReservationRow({
   r, locale, t, dim = false,
 }: {
@@ -398,8 +376,6 @@ function ReservationRow({
     </div>
   );
 }
-
-// ── Order row ─────────────────────────────────────────────────────────────────
 
 function OrderRow({
   order, locale, t, compact = false, onCancel,
@@ -517,8 +493,6 @@ function OrderRow({
   );
 }
 
-// ── Section header ────────────────────────────────────────────────────────────
-
 function SectionHeader({
   title, subtitle, count, linkHref, linkLabel,
 }: {
@@ -552,8 +526,6 @@ function SectionHeader({
   );
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
-
 function EmptyState({ label, icon, dim = false }: { label: string; icon: string; dim?: boolean }) {
   return (
     <div className={`text-center py-5 space-y-1.5 ${dim ? 'opacity-50' : ''}`}>
@@ -562,8 +534,6 @@ function EmptyState({ label, icon, dim = false }: { label: string; icon: string;
     </div>
   );
 }
-
-// ── Shimmer skeleton ──────────────────────────────────────────────────────────
 
 function ShimmerSection({ rows = 2 }: { rows?: number }) {
   return (

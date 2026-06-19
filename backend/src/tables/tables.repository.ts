@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Prisma, Table, TableStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
-// Shared transaction-client type — imported by ReservationsService and OrdersService
-// so all status mutations flow through the same type contract.
 export type PrismaTx = Omit<
   PrismaService,
   '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
@@ -45,7 +43,6 @@ export class TablesRepository {
     return this.prisma.table.findUnique({ where: { id }, select: TABLE_SELECT });
   }
 
-  // Raw row — no joins; used for existence checks and status reads
   async findRawById(id: string): Promise<Table | null> {
     return this.prisma.table.findUnique({ where: { id } });
   }
@@ -61,7 +58,6 @@ export class TablesRepository {
     return this.prisma.table.update({ where: { id }, data, select: TABLE_SELECT });
   }
 
-  // Status update inside a caller-owned transaction; optionally sets expiry
   async updateStatusInTx(
     tx: PrismaTx,
     id: string,

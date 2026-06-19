@@ -71,7 +71,7 @@ export class ReservationsController {
     return this.reservationsService.cancelReservation(id, user);
   }
 
-  // PATCH /api/reservations/:id/confirm — PENDING → CONFIRMED (WAITER, ADMIN)
+  // PATCH /api/reservations/:id/confirm — WAITER, ADMIN
   @Patch(':id/confirm')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -80,7 +80,7 @@ export class ReservationsController {
     return this.reservationsService.confirmReservation(id);
   }
 
-  // PATCH /api/reservations/:id/complete — CONFIRMED → COMPLETED (WAITER, ADMIN)
+  // PATCH /api/reservations/:id/complete — WAITER, ADMIN
   @Patch(':id/complete')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)

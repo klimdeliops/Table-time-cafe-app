@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
@@ -7,8 +7,6 @@ import { apiFetch } from '@/shared/api/client';
 import { useLocale } from '@/hooks/useLocale';
 import { formatRubles } from '@/lib/formatters';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface Dish {
   id: string;
   name: string;
@@ -16,8 +14,6 @@ interface Dish {
   category: string;
   isAvailable: boolean;
 }
-
-// ── Scroll-reveal hook ────────────────────────────────────────────────────────
 
 function useInView(threshold = 0.12) {
   const ref = useRef<HTMLDivElement>(null);
@@ -42,8 +38,6 @@ function useInView(threshold = 0.12) {
   return { ref, visible };
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function HomePage() {
   return (
     <div className="-mt-[68px]">
@@ -56,8 +50,6 @@ export default function HomePage() {
     </div>
   );
 }
-
-// ── Hero ──────────────────────────────────────────────────────────────────────
 
 function Hero() {
   const { t } = useLocale();
@@ -155,8 +147,6 @@ function Hero() {
     </section>
   );
 }
-
-// ── Features (About) ──────────────────────────────────────────────────────────
 
 const FEATURE_ICONS = {
   seasonal: (
@@ -258,8 +248,6 @@ function Features() {
     </section>
   );
 }
-
-// ── Gallery ───────────────────────────────────────────────────────────────────
 
 const GALLERY_PHOTOS = [
   'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&h=400&fit=crop&q=80',
@@ -370,8 +358,6 @@ function Gallery() {
     </section>
   );
 }
-
-// ── Menu Preview ──────────────────────────────────────────────────────────────
 
 function MenuPreview() {
   const { t } = useLocale();
@@ -509,8 +495,6 @@ function MenuPreview() {
   );
 }
 
-// ── CTA ───────────────────────────────────────────────────────────────────────
-
 function CTA() {
   const { t } = useLocale();
   const { ref, visible } = useInView(0.2);
@@ -577,8 +561,6 @@ function CTA() {
     </section>
   );
 }
-
-// ── Footer ────────────────────────────────────────────────────────────────────
 
 function Footer() {
   const { t } = useLocale();

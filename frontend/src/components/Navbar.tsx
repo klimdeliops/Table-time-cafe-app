@@ -9,8 +9,6 @@ import { useToast } from '@/contexts/ToastContext';
 import { SUPPORTED_LOCALES, LOCALE_LABELS } from '@/lib/i18n';
 import type { Locale } from '@/lib/i18n';
 
-// ── Nav item definitions ─────────────────────────────────────────────────────
-
 type NavLink   = { kind: 'link';   href: string; tKey: string; accent?: boolean };
 type NavAction = { kind: 'action'; action: 'logout'; tKey: string };
 type NavItem   = NavLink | NavAction;
@@ -49,8 +47,6 @@ const ADMIN_ITEMS: NavItem[] = [
   { kind: 'action', action: 'logout', tKey: 'navbar.logout' },
 ];
 
-// ── Navbar ────────────────────────────────────────────────────────────────────
-
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname  = usePathname();
@@ -82,8 +78,6 @@ export function Navbar() {
     await logout();
     addToast(t('navbar.logout'), 'info');
   }
-
-  // ── Render helpers ─────────────────────────────────────────────────────────
 
   function DesktopItem({ item }: { item: NavItem }) {
     if (item.kind === 'action') {
@@ -159,8 +153,6 @@ export function Navbar() {
     );
   }
 
-  // ── Language switcher ──────────────────────────────────────────────────────
-
   function LanguageSwitcher({ mobile = false }: { mobile?: boolean }) {
     return (
       <div className={`flex items-center gap-0.5 ${mobile ? 'pt-3 border-t border-black/5' : ''}`}>
@@ -181,8 +173,6 @@ export function Navbar() {
       </div>
     );
   }
-
-  // ── Main render ────────────────────────────────────────────────────────────
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 px-3 sm:px-5 pt-3 pointer-events-none">

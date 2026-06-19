@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -6,8 +6,6 @@ import Link from 'next/link';
 import { useLocale } from '@/hooks/useLocale';
 import { useAuth } from '@/hooks/useAuth';
 import { apiFetch, ApiError } from '@/shared/api/client';
-
-// ── Eye icons ─────────────────────────────────────────────────────────────────
 
 function EyeOpen() {
   return (
@@ -29,8 +27,6 @@ function EyeOff() {
   );
 }
 
-// ── Brand mark ────────────────────────────────────────────────────────────────
-
 function BrandMark() {
   return (
     <div className="text-center space-y-2">
@@ -43,8 +39,6 @@ function BrandMark() {
     </div>
   );
 }
-
-// ── Login form (needs Suspense for useSearchParams) ───────────────────────────
 
 function LoginForm() {
   const router       = useRouter();
@@ -165,8 +159,6 @@ function LoginForm() {
     </div>
   );
 }
-
-// ── Page shell ────────────────────────────────────────────────────────────────
 
 export default function LoginPage() {
   return (

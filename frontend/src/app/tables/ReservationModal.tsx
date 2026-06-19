@@ -185,7 +185,6 @@ export function ReservationModal({
           </form>
         </div>
       ) : (
-        // ── Success state ────────────────────────────────────────────────────
         <div className="glass-modal w-full max-w-sm rounded-3xl p-8 text-center space-y-6 animate-fade-up">
 
           {/* Animated green check */}

@@ -28,17 +28,12 @@ export class OrdersService {
     private readonly tablesService: TablesService,
   ) {}
 
-  // ---------------------------------------------------------------------------
-  // Create — validates type constraints, seeds initial items, wraps in tx
-  // ---------------------------------------------------------------------------
-
   async createOrder(user: AuthUser, dto: CreateOrderDto) {
     this.assertTypeConstraints(dto);
 
     try {
       return await this.prisma.$transaction(
         async (tx) => {
-          // DINE_IN: table must be FREE or RESERVED; OCCUPIED and CLEANING are blocked.
           if (dto.type === OrderType.DINE_IN) {
             const table = await tx.table.findUnique({ where: { id: dto.tableId! } });
 
@@ -51,7 +46,6 @@ export class OrdersService {
               );
             }
 
-            // Concurrent guard: reject if a non-terminal order already exists on this table
             const existingOrder = await tx.order.findFirst({
               where: {
                 tableId: dto.tableId!,
@@ -62,7 +56,6 @@ export class OrdersService {
               throw new ConflictException('Table already has an active order');
             }
 
-            // Reservation validation — must be inside the same tx for consistency
             if (dto.reservationId) {
               const now = new Date();
               const reservation = await tx.reservation.findUnique({
@@ -99,7 +92,6 @@ export class OrdersService {
             paymentMethod:   dto.paymentMethod,
           });
 
-          // Seed initial items if provided
           if (dto.items && dto.items.length > 0) {
             for (const item of dto.items) {
               await this.resolveAndUpsertItem(tx as unknown as PrismaTx, order.id, item);
@@ -107,7 +99,6 @@ export class OrdersService {
             await this.repository.recalculateTotal(tx as unknown as PrismaTx, order.id);
           }
 
-          // DINE_IN order created → table is now actively occupied
           if (dto.type === OrderType.DINE_IN && dto.tableId) {
             await this.tablesService.updateTableStatus(
               dto.tableId,
@@ -131,10 +122,6 @@ export class OrdersService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Add item — only allowed while order is CREATED
-  // ---------------------------------------------------------------------------
-
   async addItem(user: AuthUser, orderId: string, dto: AddItemDto) {
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({ where: { id: orderId } });
@@ -155,10 +142,6 @@ export class OrdersService {
       return this.repository.findByIdInTx(tx as unknown as PrismaTx, orderId);
     });
   }
-
-  // ---------------------------------------------------------------------------
-  // Remove item — only allowed while order is CREATED
-  // ---------------------------------------------------------------------------
 
   async removeItem(user: AuthUser, orderId: string, itemId: string) {
     return this.prisma.$transaction(async (tx) => {
@@ -183,10 +166,6 @@ export class OrdersService {
       return this.repository.findByIdInTx(tx as unknown as PrismaTx, orderId);
     });
   }
-
-  // ---------------------------------------------------------------------------
-  // Place order — CREATED → CONFIRMED; requires at least one item
-  // ---------------------------------------------------------------------------
 
   async placeOrder(user: AuthUser, orderId: string) {
     return this.prisma.$transaction(async (tx) => {
@@ -215,10 +194,6 @@ export class OrdersService {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Change status — WAITER / ADMIN only; strict FSM validation
-  // ---------------------------------------------------------------------------
-
   async changeStatus(orderId: string, dto: UpdateOrderStatusDto) {
     return this.prisma.$transaction(async (tx) => {
       const order = await tx.order.findUnique({ where: { id: orderId } });
@@ -232,7 +207,6 @@ export class OrdersService {
         { status: dto.status },
       );
 
-      // Terminal state for a DINE_IN order — free the table if nothing else holds it
       if (
         order.type === OrderType.DINE_IN &&
         order.tableId &&
@@ -247,10 +221,6 @@ export class OrdersService {
       return updated;
     });
   }
-
-  // ---------------------------------------------------------------------------
-  // Cancel — USER can cancel own orders; WAITER / ADMIN can cancel any
-  // ---------------------------------------------------------------------------
 
   async cancelOrder(user: AuthUser, orderId: string) {
     return this.prisma.$transaction(async (tx) => {
@@ -284,35 +254,19 @@ export class OrdersService {
     });
   }
 
-  // ---------------------------------------------------------------------------
-  // Read — active order for a table (used by waiter UI)
-  // ---------------------------------------------------------------------------
-
   async getActiveOrderByTable(tableId: string) {
     const table = await this.prisma.table.findUnique({ where: { id: tableId } });
     if (!table) throw new NotFoundException('Table not found');
     return this.repository.findActiveByTableId(tableId);
   }
 
-  // ---------------------------------------------------------------------------
-  // Read — user's own orders
-  // ---------------------------------------------------------------------------
-
   async getUserOrders(userId: string, query: QueryOrdersDto) {
     return this.repository.findByUserId(userId, query);
   }
 
-  // ---------------------------------------------------------------------------
-  // Read — all orders (ADMIN / WAITER)
-  // ---------------------------------------------------------------------------
-
   async getAllOrders(query: QueryOrdersDto) {
     return this.repository.findAll(query);
   }
-
-  // ---------------------------------------------------------------------------
-  // Read — single order with ownership check
-  // ---------------------------------------------------------------------------
 
   async getOrderById(orderId: string, user: AuthUser) {
     const order = await this.repository.findById(orderId);
@@ -328,10 +282,6 @@ export class OrdersService {
 
     return order;
   }
-
-  // ---------------------------------------------------------------------------
-  // Private helpers
-  // ---------------------------------------------------------------------------
 
   private async resolveAndUpsertItem(
     tx: PrismaTx,

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -10,8 +10,6 @@ import { useCart }   from '@/contexts/CartContext';
 import { apiFetch, ApiError } from '@/shared/api/client';
 import { formatRubles } from '@/lib/formatters';
 import type { Locale } from '@/lib/i18n';
-
-// ── Wizard types ──────────────────────────────────────────────────────────────
 
 type WizardStep     = 'cart' | 'type' | 'details' | 'payment' | 'review';
 type OrderType      = 'DINE_IN' | 'TAKEAWAY' | 'DELIVERY';
@@ -30,8 +28,6 @@ interface WizardData {
 }
 
 const ALL_STEPS: WizardStep[] = ['cart', 'type', 'details', 'payment', 'review'];
-
-// ── Floor plan types ──────────────────────────────────────────────────────────
 
 type TableStatus = 'FREE' | 'RESERVED' | 'OCCUPIED' | 'CLEANING';
 
@@ -58,8 +54,6 @@ const GLOW_RGBA: Record<TableStatus, string> = {
   CLEANING: 'rgba(156,163,175,0.9)',
 };
 
-// ── Page (Suspense shell) ─────────────────────────────────────────────────────
-
 export default function OrderNewPage() {
   return (
     <Suspense fallback={
@@ -72,8 +66,6 @@ export default function OrderNewPage() {
   );
 }
 
-// ── Wizard (uses useSearchParams — must be inside Suspense) ───────────────────
-
 function OrderWizard() {
   const router       = useRouter();
   const searchParams = useSearchParams();
@@ -81,12 +73,10 @@ function OrderWizard() {
   const { user, loading: authLoading } = useAuth();
   const { items, clearCart, totalPrice } = useCart();
 
-  // Query-param pre-fill from reservation flow
   const prefillTableId = searchParams.get('tableId');
   const prefillType    = searchParams.get('orderType') as OrderType | null;
   const isPrefilled    = !!(prefillTableId && prefillType);
 
-  // When pre-filled skip 'type' and 'details' steps
   const STEPS: WizardStep[] = isPrefilled
     ? ['cart', 'payment', 'review']
     : ALL_STEPS;
@@ -105,11 +95,9 @@ function OrderWizard() {
     paymentMethod:   null,
   });
 
-  // Floor plan state (loaded lazily when step === 'details' and type === 'DINE_IN')
   const [tables, setTables]             = useState<FloorTable[]>([]);
   const [floorLoading, setFloorLoading] = useState(false);
 
-  // If pre-filled with tableId, load table details on mount
   useEffect(() => {
     if (prefillTableId) {
       apiFetch<FloorTable[]>('/api/tables')
@@ -135,7 +123,6 @@ function OrderWizard() {
     }
   }, [step, data.orderType, tables.length]);
 
-  // Auth gate — redirect to login after auth resolves
   useEffect(() => {
     if (!authLoading && !user) {
       router.replace('/login?redirect=/order/new');
@@ -152,7 +139,6 @@ function OrderWizard() {
 
   if (!user) return null; // redirecting
 
-  // ── Step helpers ──────────────────────────────────────────────────────────
 
   const stepIdx = STEPS.indexOf(step);
   const isLast  = step === 'review';
@@ -180,7 +166,6 @@ function OrderWizard() {
     else router.push('/menu');
   }
 
-  // ── Submit ────────────────────────────────────────────────────────────────
 
   async function handleSubmit() {
     setSubmitting(true);
@@ -218,7 +203,6 @@ function OrderWizard() {
     }
   }
 
-  // ── Step labels ───────────────────────────────────────────────────────────
 
   const STEP_LABELS: Record<WizardStep, string> = {
     cart:    t('order.stepCart'),
@@ -228,7 +212,6 @@ function OrderWizard() {
     review:  t('order.stepReview'),
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
     <main className="min-h-screen pt-14 pb-8">
@@ -329,8 +312,6 @@ function OrderWizard() {
   );
 }
 
-// ── Step 1: Cart ──────────────────────────────────────────────────────────────
-
 import type { CartItem } from '@/contexts/CartContext';
 
 function StepCart({
@@ -394,8 +375,6 @@ function StepCart({
   );
 }
 
-// ── Step 2: Order Type ────────────────────────────────────────────────────────
-
 function StepType({
   data, setData, t,
 }: {
@@ -455,8 +434,6 @@ function StepType({
   );
 }
 
-// ── Step 3: Details ───────────────────────────────────────────────────────────
-
 function StepDetails({
   data, setData, t, locale, tables, floorLoading,
 }: {
@@ -497,7 +474,6 @@ function StepDetails({
     );
   }
 
-  // DINE_IN — floor plan
   return (
     <div className="space-y-4">
       <h2 className="font-semibold text-brand-espresso">{t('order.stepDetails')}</h2>
@@ -540,8 +516,6 @@ function StepDetails({
     </div>
   );
 }
-
-// ── Timing selector (shared by DELIVERY + TAKEAWAY) ────────────────────────────
 
 function TimingSelector({
   data, setData, t,
@@ -594,8 +568,6 @@ function TimingSelector({
     </div>
   );
 }
-
-// ── Floor plan ────────────────────────────────────────────────────────────────
 
 function FloorPlan({
   tables, selectedId, onSelect,
@@ -713,8 +685,6 @@ function FloorDot({
   );
 }
 
-// ── Step 4: Payment ───────────────────────────────────────────────────────────
-
 function StepPayment({
   data, setData, t,
 }: {
@@ -767,8 +737,6 @@ function StepPayment({
     </div>
   );
 }
-
-// ── Step 5: Review ────────────────────────────────────────────────────────────
 
 import { formatDateTime } from '@/lib/formatters';
 

@@ -65,7 +65,7 @@ export class MenuController {
     return this.menuService.update(id, dto);
   }
 
-  // DELETE /api/menu/:id — ADMIN only (soft delete: sets isAvailable = false)
+  // DELETE /api/menu/:id — ADMIN only
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard, RolesGuard)

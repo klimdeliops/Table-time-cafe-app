@@ -30,8 +30,6 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  // ── Static routes first to avoid collision with :id ─────────────────────
-
   // GET /api/orders/me — authenticated user's own orders
   @Get('me')
   getMyOrders(
@@ -57,8 +55,6 @@ export class OrdersController {
     return this.ordersService.getAllOrders(query);
   }
 
-  // ── Parameterised routes ─────────────────────────────────────────────────
-
   // GET /api/orders/:id
   @Get(':id')
   @UseGuards(OrderAccessGuard)
@@ -68,8 +64,6 @@ export class OrdersController {
   ) {
     return this.ordersService.getOrderById(id, user);
   }
-
-  // ── Write operations ─────────────────────────────────────────────────────
 
   // POST /api/orders — create order draft
   @Post()

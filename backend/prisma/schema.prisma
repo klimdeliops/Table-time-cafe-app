@@ -7,10 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ---------------------------------------------------------------------------
-// Enums
-// ---------------------------------------------------------------------------
-
 enum Role {
   GUEST
   USER
@@ -63,10 +59,6 @@ enum PaymentMethod {
   CARD
 }
 
-// ---------------------------------------------------------------------------
-// Models
-// ---------------------------------------------------------------------------
-
 model User {
   id             String         @id @default(uuid())
   email          String         @unique
@@ -82,7 +74,6 @@ model User {
   @@map("users")
 }
 
-// Stored hashed refresh tokens — enables per-device invalidation
 model RefreshToken {
   id        String   @id @default(uuid())
   userId    String
@@ -108,27 +99,6 @@ model Restaurant {
   @@map("restaurants")
 }
 
-// ---------------------------------------------------------------------------
-// BUSINESS LOGIC RESPONSIBILITIES (enforced in service layer, NOT schema):
-//
-// 1. Table availability is derived dynamically from the Reservation table by
-//    querying overlapping time ranges. TableStatus is a denormalized display
-//    field only — it must NEVER be treated as the source of truth for booking
-//    eligibility. ReservationsService.findAvailable() performs the canonical check.
-//
-// 2. Reservation conflict detection MUST be performed at the service level
-//    before any reservation is created:
-//      WHERE tableId = :id
-//        AND startTime < :endTime
-//        AND endTime   > :startTime
-//    The @@index below supports this query; the guard lives in the service.
-//
-// 3. Order–table consistency rules:
-//      DINE_IN  → tableId MUST be provided (validated in OrdersService.create)
-//      DELIVERY → tableId MUST be null    (validated in OrdersService.create)
-//      TAKEAWAY → tableId MUST be null    (validated in OrdersService.create)
-// ---------------------------------------------------------------------------
-
 model Table {
   id           String        @id @default(uuid())
   restaurantId String
@@ -136,8 +106,6 @@ model Table {
   capacity     Int
   x            Float
   y            Float
-  // Denormalized display hint — availability is derived from Reservation records.
-  // Updated reactively after reservation create/cancel by ReservationsService.
   status             TableStatus   @default(FREE)
   cleaningStartedAt  DateTime?
   statusExpiresAt    DateTime?
@@ -176,11 +144,8 @@ model Order {
   type        OrderType
   status      OrderStatus @default(CREATED)
   scheduledAt     DateTime?
-  // Nullable at schema level; DINE_IN requires non-null, enforced in OrdersService.
   tableId         String?
-  // Nullable at schema level; DELIVERY requires non-null, enforced in OrdersService.
   deliveryAddress String?
-  // Optional link to the reservation this order fulfils (DINE_IN only).
   reservationId   String?
   paymentMethod   PaymentMethod?
   totalAmount     Decimal     @db.Decimal(10, 2)
@@ -191,7 +156,6 @@ model Order {
   reservation Reservation? @relation(fields: [reservationId], references: [id], onDelete: SetNull)
   items       OrderItem[]
 
-  // Preorder scheduler: poll CONFIRMED orders where scheduledAt is within 15 min
   @@index([status, scheduledAt])
   @@index([userId])
   @@index([tableId])
@@ -204,7 +168,6 @@ model OrderItem {
   orderId   String
   dishId    String
   quantity  Int
-  // Price snapshot at order time — decoupled from future Dish.price changes
   unitPrice Decimal  @db.Decimal(10, 2)
   createdAt DateTime @default(now())
   order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -230,13 +193,9 @@ model Reservation {
   restaurant     Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Restrict)
   orders         Order[]
 
-  // Conflict detection: WHERE tableId = ? AND startTime < endTime AND endTime > startTime
   @@index([tableId, startTime, endTime])
-  // User reservation list with status filter
   @@index([userId, status])
-  // Restaurant dashboard with date filter
   @@index([restaurantId, startTime])
-  // Bulk status operations (cron, admin)
   @@index([status])
   @@map("reservations")
 }

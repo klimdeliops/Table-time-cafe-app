@@ -4,7 +4,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { PrismaTx } from '../tables/tables.repository';
 import { QueryOrdersDto } from './dto/query-orders.dto';
 
-// Consistent projection used across all order reads
 export const ORDER_SELECT = {
   id: true,
   type: true,
@@ -55,7 +54,6 @@ export class OrdersRepository {
     return tx.order.findUnique({ where: { id }, select: ORDER_SELECT });
   }
 
-  // Raw row — no joins; used for status/ownership checks before mutations
   async findRawById(id: string) {
     return this.prisma.order.findUnique({ where: { id } });
   }
@@ -172,7 +170,6 @@ export class OrdersRepository {
     await tx.orderItem.delete({ where: { id: itemId } });
   }
 
-  // Recomputes Order.totalAmount from current items inside the same transaction
   async recalculateTotal(tx: PrismaTx, orderId: string): Promise<void> {
     const items = await tx.orderItem.findMany({
       where:  { orderId },

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -6,8 +6,6 @@ import { ProtectedPage } from '@/components/ProtectedPage';
 import { apiFetch, ApiError } from '@/shared/api/client';
 import { useLocale } from '@/hooks/useLocale';
 import { formatRubles } from '@/lib/formatters';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 type OrderStatus = 'CREATED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
 type OrderType   = 'DINE_IN' | 'DELIVERY' | 'TAKEAWAY';
@@ -31,8 +29,6 @@ interface Order {
   createdAt: string;
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
 const CURRENT_STATUSES  = new Set<OrderStatus>(['CREATED', 'CONFIRMED', 'PREPARING', 'READY']);
 const POLL_INTERVAL_MS  = 12_000;
 const ITEMS_COLLAPSE_AT = 3;
@@ -55,8 +51,6 @@ const STATUS_BORDER: Record<OrderStatus, string> = {
   CANCELLED: 'border-l-red-200',
 };
 
-// ── Shimmer ───────────────────────────────────────────────────────────────────
-
 function Shimmer() {
   return (
     <div className="glass-card rounded-2xl overflow-hidden p-5 space-y-3 animate-pulse">
@@ -73,8 +67,6 @@ function Shimmer() {
   );
 }
 
-// ── Empty state ───────────────────────────────────────────────────────────────
-
 function EmptyOrders({ label, cta, ctaHref }: { label: string; cta: string; ctaHref: string }) {
   return (
     <div className="glass-card rounded-2xl px-6 py-10 text-center space-y-4">
@@ -89,8 +81,6 @@ function EmptyOrders({ label, cta, ctaHref }: { label: string; cta: string; ctaH
     </div>
   );
 }
-
-// ── Orders page ───────────────────────────────────────────────────────────────
 
 export default function OrdersPage() {
   return (
@@ -201,8 +191,6 @@ function OrdersContent() {
   );
 }
 
-// ── Section header ────────────────────────────────────────────────────────────
-
 function SectionHeader({ label, count }: { label: string; count: number | null }) {
   return (
     <div className="flex items-center gap-2">
@@ -215,8 +203,6 @@ function SectionHeader({ label, count }: { label: string; count: number | null }
     </div>
   );
 }
-
-// ── Order card ────────────────────────────────────────────────────────────────
 
 function OrderCard({
   order, onRefresh, fmtDate, t,

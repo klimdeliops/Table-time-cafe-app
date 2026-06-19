@@ -1,12 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useState } from 'react';
 import { ProtectedPage } from '@/components/ProtectedPage';
 import { apiFetch, ApiError } from '@/shared/api/client';
 import { useLocale } from '@/hooks/useLocale';
 import { formatDate, formatDateTime } from '@/lib/formatters';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 type DishCategory =
   | 'hot_drinks' | 'cold_drinks' | 'breakfast' | 'sandwiches'
@@ -48,8 +46,6 @@ interface Order {
 
 interface Restaurant { id: string; name: string; }
 interface Toast { id: string; message: string; type: 'success' | 'error'; }
-
-// ── Constants ─────────────────────────────────────────────────────────────────
 
 const DISH_CATEGORIES: DishCategory[] = [
   'hot_drinks', 'cold_drinks', 'breakfast', 'sandwiches',
@@ -137,14 +133,10 @@ const ROLE_STYLE: Record<UserRole, string> = {
   ADMIN:  'bg-purple-100 text-purple-700',
 };
 
-// ── Shared button classes ─────────────────────────────────────────────────────
-
 const cancelBtnCls = 'text-sm px-4 py-2 rounded-xl bg-brand-espresso/8 text-brand-espresso/70 hover:bg-brand-espresso/14 transition-colors font-medium';
 const inputCls     = 'glass-input w-full px-3 py-2 text-sm rounded-xl';
 const labelCls     = 'block text-xs font-medium text-brand-espresso/60 mb-1';
 const sectionTitle = 'text-lg font-semibold text-brand-espresso';
-
-// ── Toast ─────────────────────────────────────────────────────────────────────
 
 function useToasts() {
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -168,8 +160,6 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
   );
 }
 
-// ── Overlay ───────────────────────────────────────────────────────────────────
-
 function Overlay({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div
@@ -180,8 +170,6 @@ function Overlay({ children, onClose }: { children: React.ReactNode; onClose: ()
     </div>
   );
 }
-
-// ── Confirm Modal ─────────────────────────────────────────────────────────────
 
 function ConfirmModal({ title, body, confirmLabel, onConfirm, onCancel, loading, danger = false }: {
   title: string; body: string; confirmLabel?: string;
@@ -209,8 +197,6 @@ function Shimmer({ className }: { className?: string }) {
   return <div className={`animate-pulse rounded-xl bg-brand-espresso/8 ${className ?? ''}`} />;
 }
 
-// ── Page entry ────────────────────────────────────────────────────────────────
-
 export default function AdminPage() {
   return (
     <ProtectedPage roles={['ADMIN']}>
@@ -218,8 +204,6 @@ export default function AdminPage() {
     </ProtectedPage>
   );
 }
-
-// ── Dashboard shell ───────────────────────────────────────────────────────────
 
 function AdminDashboard() {
   const { t } = useLocale();
@@ -315,8 +299,6 @@ function AdminDashboard() {
   );
 }
 
-// ── Analytics Tab ─────────────────────────────────────────────────────────────
-
 function AnalyticsTab({ restaurantId, waiters }: { restaurantId: string; waiters: User[] }) {
   const { t } = useLocale();
   const [loading, setLoading] = useState(true);
@@ -368,8 +350,6 @@ function AnalyticsTab({ restaurantId, waiters }: { restaurantId: string; waiters
     </div>
   );
 }
-
-// ── Dish Modal ────────────────────────────────────────────────────────────────
 
 function DishModal({ dish, onClose, onSave, addToast }: {
   dish: Dish | null; onClose: () => void;
@@ -465,8 +445,6 @@ function DishModal({ dish, onClose, onSave, addToast }: {
     </Overlay>
   );
 }
-
-// ── Menu Tab ──────────────────────────────────────────────────────────────────
 
 function MenuTab({ addToast }: { addToast: (msg: string, type: 'success' | 'error') => void }) {
   const { t } = useLocale();
@@ -600,8 +578,6 @@ function MenuTab({ addToast }: { addToast: (msg: string, type: 'success' | 'erro
   );
 }
 
-// ── Table Status Modal ────────────────────────────────────────────────────────
-
 function TableStatusModal({ table, onClose, onSave, addToast }: {
   table: TableFull; onClose: () => void;
   onSave: (t: TableFull) => void;
@@ -653,8 +629,6 @@ function TableStatusModal({ table, onClose, onSave, addToast }: {
     </Overlay>
   );
 }
-
-// ── Table Create Modal ────────────────────────────────────────────────────────
 
 function TableCreateModal({ restaurantId, onClose, onCreated, addToast }: {
   restaurantId: string; onClose: () => void;
@@ -722,8 +696,6 @@ function TableCreateModal({ restaurantId, onClose, onCreated, addToast }: {
     </Overlay>
   );
 }
-
-// ── Table Edit Modal ──────────────────────────────────────────────────────────
 
 function TableEditModal({ table, onClose, onSave, addToast }: {
   table: TableFull; onClose: () => void;
@@ -797,8 +769,6 @@ function TableEditModal({ table, onClose, onSave, addToast }: {
     </Overlay>
   );
 }
-
-// ── Assign Waiter Modal ───────────────────────────────────────────────────────
 
 function AssignWaiterModal({ table, waiters, onClose, onAssign, addToast }: {
   table: TableFull; waiters: User[];
@@ -881,8 +851,6 @@ function AssignWaiterModal({ table, waiters, onClose, onAssign, addToast }: {
     </Overlay>
   );
 }
-
-// ── Tables Tab ────────────────────────────────────────────────────────────────
 
 function TablesTab({ waiters, restaurantId, addToast }: {
   waiters: User[]; restaurantId: string;
@@ -1032,8 +1000,6 @@ function TablesTab({ waiters, restaurantId, addToast }: {
     </div>
   );
 }
-
-// ── Orders Admin Tab ──────────────────────────────────────────────────────────
 
 const ORD_NEXT: Partial<Record<OrdStatus, OrdStatus>> = {
   CREATED:   'CONFIRMED',
@@ -1231,8 +1197,6 @@ function OrdersAdminTab({ addToast, waiters }: {
   );
 }
 
-// ── Create Account Modal ──────────────────────────────────────────────────────
-
 function CreateAccountModal({ onClose, onCreated, addToast }: {
   onClose: () => void;
   onCreated: (user: User) => void;
@@ -1293,8 +1257,6 @@ function CreateAccountModal({ onClose, onCreated, addToast }: {
     </Overlay>
   );
 }
-
-// ── Accounts Tab (all users) ──────────────────────────────────────────────────
 
 function AccountsTab({ users, setUsers, addToast }: {
   users: User[];
@@ -1462,8 +1424,6 @@ function AccountsTab({ users, setUsers, addToast }: {
     </div>
   );
 }
-
-// ── Personnel Tab (waiters + stats) ───────────────────────────────────────────
 
 function PersonnelTab({ waiters, addToast }: {
   waiters: User[];

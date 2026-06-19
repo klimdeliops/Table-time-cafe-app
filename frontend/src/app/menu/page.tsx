@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -12,8 +12,6 @@ import { apiFetch, ApiError } from '@/shared/api/client';
 import { formatRubles } from '@/lib/formatters';
 import type { Locale } from '@/lib/i18n';
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface Dish {
   id: string;
   name: string;
@@ -25,8 +23,6 @@ interface Dish {
 }
 
 const ALL = '__all__';
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function dishName(dish: Dish, locale: Locale): string {
   return (locale === 'en' && dish.nameEn) ? dish.nameEn : dish.name;
@@ -43,8 +39,6 @@ function toCartDish(dish: Dish): CartDish {
     isAvailable: dish.isAvailable,
   };
 }
-
-// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function MenuPage() {
   const router = useRouter();
@@ -95,7 +89,6 @@ export default function MenuPage() {
     router.push('/order/new');
   }
 
-  // ── Loading skeleton ─────────────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -288,8 +281,6 @@ export default function MenuPage() {
   );
 }
 
-// ── FilterPill ────────────────────────────────────────────────────────────────
-
 function FilterPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
   return (
     <button
@@ -305,8 +296,6 @@ function FilterPill({ label, active, onClick }: { label: string; active: boolean
     </button>
   );
 }
-
-// ── DishCard ──────────────────────────────────────────────────────────────────
 
 function DishCard({
   dish, locale, qty, t, onAdd, onInc, onDec,
@@ -406,8 +395,6 @@ function DishCard({
   );
 }
 
-// ── CartSidebar ───────────────────────────────────────────────────────────────
-
 import type { CartItem } from '@/contexts/CartContext';
 
 interface CartSidebarProps {
@@ -483,8 +470,6 @@ function CartSidebar({
     </div>
   );
 }
-
-// ── QtyBtn ────────────────────────────────────────────────────────────────────
 
 function QtyBtn({
   children, amber, small, onClick,

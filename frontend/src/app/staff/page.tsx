@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ProtectedPage } from '@/components/ProtectedPage';
@@ -6,8 +6,6 @@ import { apiFetch } from '@/shared/api/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useLocale } from '@/hooks/useLocale';
 import { formatRubles } from '@/lib/formatters';
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 type OrderStatus       = 'CREATED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
 type OrderType         = 'DINE_IN' | 'DELIVERY' | 'TAKEAWAY';
@@ -68,8 +66,6 @@ interface Reservation {
 
 interface CartItem { dish: Dish; qty: number }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
-
 const ACTIVE_ORDER_STATUSES = new Set<OrderStatus>(['CREATED', 'CONFIRMED', 'PREPARING', 'READY']);
 const POLL_MS  = 10_000;
 const NOTIFY_TTL_MS = 6_000;
@@ -111,8 +107,6 @@ const DISH_CATEGORIES: DishCategory[] = [
   'main', 'salads', 'desserts', 'signature',
 ];
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
-
 interface Toast { id: string; message: string; type: 'success' | 'error' }
 
 function useToasts() {
@@ -141,8 +135,6 @@ function ToastStack({ toasts }: { toasts: Toast[] }) {
   );
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 }
@@ -155,8 +147,6 @@ function startOfToday() {
   const d = new Date(); d.setHours(0, 0, 0, 0); return d;
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default function StaffPage() {
   return (
     <ProtectedPage roles={['WAITER', 'ADMIN']}>
@@ -164,8 +154,6 @@ export default function StaffPage() {
     </ProtectedPage>
   );
 }
-
-// ── Dashboard ─────────────────────────────────────────────────────────────────
 
 function StaffDashboard() {
   const { user }   = useAuth();
@@ -179,10 +167,8 @@ function StaffDashboard() {
   const [dishes,       setDishes]       = useState<Dish[]>([]);
   const [loadingInit,  setLoadingInit]  = useState(true);
 
-  // Quick Order modal state
   const [quickTable, setQuickTable] = useState<TableFull | null>(null);
 
-  // Polling
   const knownCreatedIds = useRef<Set<string>>(new Set());
   const initialDone     = useRef(false);
   const notifyTimer     = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -208,7 +194,6 @@ function StaffDashboard() {
       .catch(() => { if (!silent) addToast(t('common.error'), 'error'); });
   }, [t, addToast]);
 
-  // Initial load: tables + orders + restaurant + reservations + dishes
   useEffect(() => {
     Promise.all([
       apiFetch<TableFull[]>('/api/tables'),
@@ -237,7 +222,6 @@ function StaffDashboard() {
       .finally(() => setLoadingInit(false));
   }, []);
 
-  // Poll orders every 10s
   useEffect(() => {
     const id = setInterval(() => loadOrders(true), POLL_MS);
     return () => clearInterval(id);
@@ -263,11 +247,9 @@ function StaffDashboard() {
          (r.status === 'COMPLETED' || r.status === 'CANCELLED')
   );
 
-  // Map tableId → active order (for table cards)
   const orderByTable = new Map<string, Order>();
   activeOrders.forEach(o => { if (o.tableId) orderByTable.set(o.tableId, o); });
 
-  // Map tableId → active reservation
   const reservationByTable = new Map<string, Reservation>();
   upcomingRes.forEach(r => reservationByTable.set(r.table.id, r));
 
@@ -415,8 +397,6 @@ function StaffDashboard() {
   );
 }
 
-// ── Quick Stats ───────────────────────────────────────────────────────────────
-
 function QuickStats({
   myTables, activeOrders, upcomingRes, completedToday, t,
 }: {
@@ -441,8 +421,6 @@ function QuickStats({
   );
 }
 
-// ── Section wrapper ───────────────────────────────────────────────────────────
-
 function Section({
   title, headerRight, children,
 }: {
@@ -462,8 +440,6 @@ function Section({
 function EmptyHint({ text }: { text: string }) {
   return <p className="text-sm text-brand-espresso/40 py-2">{text}</p>;
 }
-
-// ── Table Card ────────────────────────────────────────────────────────────────
 
 function TableCard({
   table, activeOrder, activeRes, onQuickOrder, t,
@@ -515,8 +491,6 @@ function TableCard({
     </div>
   );
 }
-
-// ── Active Orders Panel ───────────────────────────────────────────────────────
 
 function ActiveOrdersPanel({
   orders, onRefresh, addToast, t,
@@ -696,8 +670,6 @@ function OrderCard({
   );
 }
 
-// ── Completed Today Panel ─────────────────────────────────────────────────────
-
 function CompletedTodayPanel({
   orders, revenue, t,
 }: {
@@ -760,8 +732,6 @@ function CompletedTodayPanel({
     </div>
   );
 }
-
-// ── Reservations Panel ────────────────────────────────────────────────────────
 
 function ReservationsPanel({
   upcoming, done, addToast, onRefresh, t,
@@ -884,8 +854,6 @@ function ReservationRow({
   );
 }
 
-// ── Quick Order Modal ─────────────────────────────────────────────────────────
-
 function QuickOrderModal({
   table, tables, dishes, onClose, onCreated, addToast, t,
 }: {
@@ -953,7 +921,6 @@ function QuickOrderModal({
     }
   }
 
-  // Active categories in filtered set
   const activeCats = DISH_CATEGORIES.filter(cat => filtered.some(d => d.category === cat));
 
   return (

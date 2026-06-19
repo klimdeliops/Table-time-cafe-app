@@ -34,10 +34,6 @@ export class ReservationsService {
     private readonly tablesService: TablesService,
   ) {}
 
-  // ---------------------------------------------------------------------------
-  // Create — serializable transaction prevents double-booking
-  // ---------------------------------------------------------------------------
-
   async createReservation(currentUser: AuthUser, dto: CreateReservationDto) {
     const startTime = new Date(dto.startTime);
     const endTime = new Date(dto.endTime);
@@ -52,7 +48,6 @@ export class ReservationsService {
     try {
       return await this.prisma.$transaction(
         async (tx) => {
-          // 1. Validate table exists and belongs to the given restaurant
           const table = await tx.table.findUnique({ where: { id: dto.tableId } });
 
           if (!table) throw new NotFoundException('Table not found');
@@ -61,14 +56,12 @@ export class ReservationsService {
             throw new BadRequestException('Table does not belong to this restaurant');
           }
 
-          // 2. Capacity check
           if (table.capacity < dto.numberOfGuests) {
             throw new BadRequestException(
               `Table capacity (${table.capacity}) is less than requested guests (${dto.numberOfGuests})`,
             );
           }
 
-          // 3. Overlap conflict check
           const conflict = await tx.reservation.findFirst({
             where: {
               tableId: dto.tableId,
@@ -84,7 +77,6 @@ export class ReservationsService {
             );
           }
 
-          // 4. Create reservation
           return tx.reservation.create({
             data: {
               userId: currentUser.id,
@@ -112,10 +104,6 @@ export class ReservationsService {
       throw error;
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Read — user's own reservations
-  // ---------------------------------------------------------------------------
 
   async getUserReservations(userId: string, query: QueryReservationsDto) {
     const { status, date, page = 1, limit = 20 } = query;
@@ -146,10 +134,6 @@ export class ReservationsService {
     return { items, total, page, limit };
   }
 
-  // ---------------------------------------------------------------------------
-  // Read — all reservations for a restaurant (WAITER / ADMIN)
-  // ---------------------------------------------------------------------------
-
   async getRestaurantReservations(restaurantId: string, query: QueryReservationsDto) {
     const { status, date, page = 1, limit = 20 } = query;
     const skip = (page - 1) * limit;
@@ -178,10 +162,6 @@ export class ReservationsService {
 
     return { items, total, page, limit };
   }
-
-  // ---------------------------------------------------------------------------
-  // Read — available tables for a time range (used by the interactive map)
-  // ---------------------------------------------------------------------------
 
   async getAvailableTables(query: QueryAvailableDto) {
     const startTime = new Date(query.startTime);
@@ -212,10 +192,6 @@ export class ReservationsService {
       orderBy: { capacity: 'asc' },
     });
   }
-
-  // ---------------------------------------------------------------------------
-  // Cancel — USER can cancel own, ADMIN can cancel any
-  // ---------------------------------------------------------------------------
 
   async cancelReservation(id: string, currentUser: AuthUser) {
     try {
@@ -249,7 +225,6 @@ export class ReservationsService {
             select: RESERVATION_SELECT,
           });
 
-          // Only sync if the table's RESERVED state was driven by this reservation
           if (reservation.status === ReservationStatus.CONFIRMED) {
             await this.tablesService.syncTableStatus(
               reservation.tableId,
@@ -272,10 +247,6 @@ export class ReservationsService {
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Confirm — WAITER / ADMIN only; PENDING → CONFIRMED
-  // ---------------------------------------------------------------------------
-
   async confirmReservation(id: string) {
     try {
       return await this.prisma.$transaction(
@@ -295,8 +266,6 @@ export class ReservationsService {
             select: RESERVATION_SELECT,
           });
 
-          // Derive correct status: OCCUPIED if table has an active order, else RESERVED.
-          // syncTableStatus checks active orders first and never downgrades OCCUPIED.
           await this.tablesService.syncTableStatus(
             reservation.tableId,
             tx as unknown as PrismaTx,
@@ -316,10 +285,6 @@ export class ReservationsService {
       throw error;
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Complete — WAITER / ADMIN only; CONFIRMED → COMPLETED
-  // ---------------------------------------------------------------------------
 
   async completeReservation(id: string) {
     try {

@@ -28,12 +28,9 @@ export class TablesService implements OnModuleInit {
     private readonly prisma: PrismaService,
   ) {}
 
-  // ── Lifecycle ─────────────────────────────────────────────────────────────
-
   async onModuleInit() {
     const now = new Date();
 
-    // ── Restore CLEANING timers ────────────────────────────────────────────
     const cleaning = await this.prisma.table.findMany({
       where: { status: TableStatus.CLEANING, cleaningStartedAt: { not: null } },
       select: { id: true, cleaningStartedAt: true },
@@ -49,7 +46,6 @@ export class TablesService implements OnModuleInit {
       }
     }
 
-    // ── Restore OCCUPIED timers ────────────────────────────────────────────
     const occupied = await this.prisma.table.findMany({
       where: { status: TableStatus.OCCUPIED, statusExpiresAt: { not: null } },
       select: { id: true, statusExpiresAt: true },
@@ -64,7 +60,6 @@ export class TablesService implements OnModuleInit {
       }
     }
 
-    // ── Restore RESERVED timers ────────────────────────────────────────────
     const reserved = await this.prisma.table.findMany({
       where: { status: TableStatus.RESERVED, statusExpiresAt: { not: null } },
       select: { id: true, statusExpiresAt: true },
@@ -79,8 +74,6 @@ export class TablesService implements OnModuleInit {
       }
     }
   }
-
-  // ── Public API (HTTP-facing) ───────────────────────────────────────────────
 
   async createTable(dto: CreateTableDto) {
     const restaurant = await this.prisma.restaurant.findUnique({
@@ -139,7 +132,6 @@ export class TablesService implements OnModuleInit {
       this.logger.log(`[OCCUPIED] Table ${id}: auto-free in 2h`);
 
     } else {
-      // RESERVED or FREE set manually — no auto-expiry
       await this.repository.update(id, {
         status,
         cleaningStartedAt: null,
@@ -171,8 +163,6 @@ export class TablesService implements OnModuleInit {
     });
   }
 
-  // ── Internal API (OrdersService / ReservationsService) ───────────────────
-
   async updateTableStatus(
     tableId: string,
     status: TableStatus,
@@ -203,12 +193,10 @@ export class TablesService implements OnModuleInit {
       where: { id: tableId },
       select: { status: true },
     });
-    // CLEANING managed exclusively by its own timer; skip automated sync
     if (current?.status === TableStatus.CLEANING) return;
 
     const now = new Date();
 
-    // Active DINE_IN order → OCCUPIED for 2h
     const activeOrder = await db.order.findFirst({
       where: {
         tableId,
@@ -223,7 +211,6 @@ export class TablesService implements OnModuleInit {
       return;
     }
 
-    // In-progress CONFIRMED reservation → OCCUPIED until endTime
     const occupying = await db.reservation.findFirst({
       where: {
         tableId,
@@ -242,7 +229,6 @@ export class TablesService implements OnModuleInit {
       return;
     }
 
-    // Future CONFIRMED reservation → RESERVED until startTime
     const upcoming = await db.reservation.findFirst({
       where: {
         tableId,
@@ -266,8 +252,6 @@ export class TablesService implements OnModuleInit {
       );
     }
   }
-
-  // ── Timer helpers ──────────────────────────────────────────────────────────
 
   private scheduleCleaning(tableId: string, delayMs: number): void {
     this.cleaningTimers.set(
@@ -330,8 +314,6 @@ export class TablesService implements OnModuleInit {
       this.logger.error(`[RESERVED] Table ${tableId}: sync failed`, err);
     }
   }
-
-  // ── Private helpers ───────────────────────────────────────────────────────
 
   private async assertExists(id: string): Promise<void> {
     const table = await this.repository.findRawById(id);

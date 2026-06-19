@@ -18,16 +18,10 @@ import {
 import type { Locale } from '@/lib/i18n';
 import type { Dictionary } from '@/lib/i18n/types';
 
-// ── Dictionary resolution ────────────────────────────────────────────────────
-
 type Dict = Dictionary;
 
 const DICTS: Record<Locale, Dict> = { ru, en };
 
-/**
- * Resolves a dot-notation key against a dictionary object.
- * Returns the key itself when the path doesn't exist.
- */
 function resolve(dict: Record<string, unknown>, key: string): string {
   const parts = key.split('.');
   let cur: unknown = dict;
@@ -41,20 +35,13 @@ function resolve(dict: Record<string, unknown>, key: string): string {
   return typeof cur === 'string' ? cur : key;
 }
 
-// ── Context shape ────────────────────────────────────────────────────────────
-
 export interface LocaleContextValue {
-  /** Active locale code */
   locale: Locale;
-  /** Change locale and persist to localStorage */
   setLocale: (l: Locale) => void;
-  /** Translate a dot-notation key. Falls back: active locale → ru → key */
   t: (key: string) => string;
-  /** Human-readable locale label (e.g. "RU", "EN") */
   localeLabel: string;
 }
 
-// Safe no-op default so context consumers outside the provider don't crash
 export const LocaleContext = createContext<LocaleContextValue>({
   locale:      DEFAULT_LOCALE,
   setLocale:   () => {},
@@ -62,10 +49,7 @@ export const LocaleContext = createContext<LocaleContextValue>({
   localeLabel: LOCALE_LABELS[DEFAULT_LOCALE],
 });
 
-// ── Provider ─────────────────────────────────────────────────────────────────
-
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  // Server renders with default locale — client patches from localStorage on mount
   const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
 
   useEffect(() => {
@@ -75,7 +59,7 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
         setLocaleState(stored);
       }
     } catch {
-      // localStorage unavailable (SSR guard, privacy mode) — keep default
+      // keep default locale
     }
   }, []);
 
@@ -94,11 +78,9 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
       const result = resolve(primary, key);
       if (result !== key) return result;
 
-      // Key missing in active locale — try the default locale
       const fallbackResult = resolve(fallback, key);
       if (fallbackResult !== key) return fallbackResult;
 
-      // Unknown key — return raw key so UI never crashes or shows blank
       return key;
     },
     [locale],
