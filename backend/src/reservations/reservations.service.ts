@@ -41,7 +41,7 @@ export class ReservationsService {
     if (endTime <= startTime) {
       throw new BadRequestException('endTime must be after startTime');
     }
-    if (startTime < new Date()) {
+    if (startTime < new Date(Date.now() - 10 * 60 * 1000)) {
       throw new BadRequestException('Cannot create a reservation in the past');
     }
 
