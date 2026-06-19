@@ -880,11 +880,14 @@ function TablesTab({ waiters, restaurantId, addToast }: {
   const [assigningTable, setAssigning] = useState<TableFull | null>(null);
   const [creatingTable, setCreating]   = useState(false);
 
-  useEffect(() => {
+  function fetchTables() {
+    setLoading(true);
     apiFetch<TableFull[]>('/api/tables')
       .then(data => { setTables(data); setLoading(false); })
       .catch(() => setLoading(false));
-  }, []);
+  }
+
+  useEffect(() => { fetchTables(); }, []);
 
   function handleUpdate(updated: TableFull) {
     setTables(prev => prev.map(tb => tb.id === updated.id ? updated : tb));
@@ -906,9 +909,14 @@ function TablesTab({ waiters, restaurantId, addToast }: {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className={sectionTitle}>{t('admin.tablesSection')}</h2>
-        <button onClick={() => setCreating(true)} className="btn-amber text-sm px-4 py-2">
-          + {t('admin.createTable')}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={fetchTables} className="text-sm px-4 py-2 rounded-xl bg-brand-espresso/8 text-brand-espresso/70 hover:bg-brand-espresso/14 transition-colors font-medium">
+            ↻
+          </button>
+          <button onClick={() => setCreating(true)} className="btn-amber text-sm px-4 py-2">
+            + {t('admin.createTable')}
+          </button>
+        </div>
       </div>
 
       {/* Status legend bar */}

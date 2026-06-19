@@ -211,11 +211,12 @@ export class TablesService implements OnModuleInit {
       return;
     }
 
+    const nearFuture = new Date(now.getTime() + 5 * 60 * 1000);
     const occupying = await db.reservation.findFirst({
       where: {
         tableId,
         status: ReservationStatus.CONFIRMED,
-        startTime: { lte: now },
+        startTime: { lte: nearFuture },
         endTime:   { gt:  now },
       },
     });
@@ -233,7 +234,7 @@ export class TablesService implements OnModuleInit {
       where: {
         tableId,
         status: ReservationStatus.CONFIRMED,
-        startTime: { gt: now },
+        startTime: { gt: nearFuture },
       },
       orderBy: { startTime: 'asc' },
     });
