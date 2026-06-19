@@ -186,7 +186,7 @@ export class TablesService implements OnModuleInit {
     if (status === TableStatus.CLEANING)  this.scheduleCleaning(tableId, CLEANING_MS);
   }
 
-  async syncTableStatus(tableId: string, tx?: PrismaTx): Promise<void> {
+  async syncTableStatus(tableId: string, tx?: PrismaTx, skipOrders = false): Promise<void> {
     const db = (tx ?? this.prisma) as PrismaTx;
 
     const current = await db.table.findUnique({
@@ -197,18 +197,20 @@ export class TablesService implements OnModuleInit {
 
     const now = new Date();
 
-    const activeOrder = await db.order.findFirst({
-      where: {
-        tableId,
-        status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
-      },
-    });
-    if (activeOrder) {
-      const expiresAt = new Date(now.getTime() + OCCUPIED_MS);
-      this.cancelAllTimers(tableId);
-      await this.repository.updateStatusInTx(db, tableId, TableStatus.OCCUPIED, expiresAt);
-      this.scheduleOccupied(tableId, OCCUPIED_MS);
-      return;
+    if (!skipOrders) {
+      const activeOrder = await db.order.findFirst({
+        where: {
+          tableId,
+          status: { notIn: [OrderStatus.COMPLETED, OrderStatus.CANCELLED] },
+        },
+      });
+      if (activeOrder) {
+        const expiresAt = new Date(now.getTime() + OCCUPIED_MS);
+        this.cancelAllTimers(tableId);
+        await this.repository.updateStatusInTx(db, tableId, TableStatus.OCCUPIED, expiresAt);
+        this.scheduleOccupied(tableId, OCCUPIED_MS);
+        return;
+      }
     }
 
     const nearFuture = new Date(now.getTime() + 5 * 60 * 1000);

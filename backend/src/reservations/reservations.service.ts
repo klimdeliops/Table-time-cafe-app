@@ -313,6 +313,7 @@ export class ReservationsService {
           await this.tablesService.syncTableStatus(
             reservation.tableId,
             tx as unknown as PrismaTx,
+            true,
           );
 
           return updated;
