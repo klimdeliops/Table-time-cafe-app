@@ -91,7 +91,14 @@ export class UsersService {
       throw new ForbiddenException('Cannot delete an ADMIN user');
     }
 
-    await this.prisma.user.delete({ where: { id: targetId } });
+    await this.prisma.$transaction([
+      this.prisma.orderItem.deleteMany({
+        where: { order: { userId: targetId } },
+      }),
+      this.prisma.order.deleteMany({ where: { userId: targetId } }),
+      this.prisma.reservation.deleteMany({ where: { userId: targetId } }),
+      this.prisma.user.delete({ where: { id: targetId } }),
+    ]);
   }
 
   async updateRole(currentUser: AuthUser, targetId: string, dto: UpdateUserRoleDto) {
