@@ -77,7 +77,7 @@ export class ReservationsService {
             );
           }
 
-          return tx.reservation.create({
+          const created = await tx.reservation.create({
             data: {
               userId: currentUser.id,
               tableId: dto.tableId,
@@ -89,6 +89,13 @@ export class ReservationsService {
             },
             select: RESERVATION_SELECT,
           });
+
+          await this.tablesService.syncTableStatus(
+            dto.tableId,
+            tx as unknown as PrismaTx,
+          );
+
+          return created;
         },
         { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       );
@@ -225,12 +232,10 @@ export class ReservationsService {
             select: RESERVATION_SELECT,
           });
 
-          if (reservation.status === ReservationStatus.CONFIRMED) {
-            await this.tablesService.syncTableStatus(
-              reservation.tableId,
-              tx as unknown as PrismaTx,
-            );
-          }
+          await this.tablesService.syncTableStatus(
+            reservation.tableId,
+            tx as unknown as PrismaTx,
+          );
 
           return updated;
         },

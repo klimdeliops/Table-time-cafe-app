@@ -212,7 +212,9 @@ export class TablesService implements OnModuleInit {
     }
 
     const nearFuture = new Date(now.getTime() + 5 * 60 * 1000);
-    const occupying = await db.reservation.findFirst({
+
+    // CONFIRMED reservation active now → OCCUPIED (clients arrived)
+    const confirmedNow = await db.reservation.findFirst({
       where: {
         tableId,
         status: ReservationStatus.CONFIRMED,
@@ -220,38 +222,50 @@ export class TablesService implements OnModuleInit {
         endTime:   { gt:  now },
       },
     });
-    if (occupying) {
-      const delay = occupying.endTime.getTime() - now.getTime();
+    if (confirmedNow) {
+      const delay = confirmedNow.endTime.getTime() - now.getTime();
       this.cancelAllTimers(tableId);
-      await this.repository.updateStatusInTx(
-        db, tableId, TableStatus.OCCUPIED, occupying.endTime,
-      );
+      await this.repository.updateStatusInTx(db, tableId, TableStatus.OCCUPIED, confirmedNow.endTime);
       this.scheduleOccupied(tableId, delay);
       return;
     }
 
+    // PENDING reservation active now → RESERVED (booked but not yet confirmed)
+    const pendingNow = await db.reservation.findFirst({
+      where: {
+        tableId,
+        status: ReservationStatus.PENDING,
+        startTime: { lte: nearFuture },
+        endTime:   { gt:  now },
+      },
+    });
+    if (pendingNow) {
+      const delay = pendingNow.endTime.getTime() - now.getTime();
+      this.cancelAllTimers(tableId);
+      await this.repository.updateStatusInTx(db, tableId, TableStatus.RESERVED, pendingNow.endTime);
+      this.scheduleReserved(tableId, delay);
+      return;
+    }
+
+    // Any upcoming reservation (PENDING or CONFIRMED) → RESERVED
     const upcoming = await db.reservation.findFirst({
       where: {
         tableId,
-        status: ReservationStatus.CONFIRMED,
+        status: { in: [ReservationStatus.PENDING, ReservationStatus.CONFIRMED] },
         startTime: { gt: nearFuture },
       },
       orderBy: { startTime: 'asc' },
     });
-
     if (upcoming) {
       const delay = upcoming.startTime.getTime() - now.getTime();
       this.cancelAllTimers(tableId);
-      await this.repository.updateStatusInTx(
-        db, tableId, TableStatus.RESERVED, upcoming.startTime,
-      );
+      await this.repository.updateStatusInTx(db, tableId, TableStatus.RESERVED, upcoming.startTime);
       this.scheduleReserved(tableId, delay);
-    } else {
-      this.cancelAllTimers(tableId);
-      await this.repository.updateStatusInTx(
-        db, tableId, TableStatus.FREE, null,
-      );
+      return;
     }
+
+    this.cancelAllTimers(tableId);
+    await this.repository.updateStatusInTx(db, tableId, TableStatus.FREE, null);
   }
 
   private scheduleCleaning(tableId: string, delayMs: number): void {
