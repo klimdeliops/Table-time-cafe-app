@@ -73,8 +73,21 @@ function OrderWizard() {
   const { user, loading: authLoading } = useAuth();
   const { items, clearCart, totalPrice } = useCart();
 
-  const prefillTableId = searchParams.get('tableId');
-  const prefillType    = searchParams.get('orderType') as OrderType | null;
+  const urlTableId  = searchParams.get('tableId');
+  const urlType     = searchParams.get('orderType') as OrderType | null;
+
+  const [resCtx] = useState<{
+    tableId: string; tableNumber: number; tableCapacity: number; orderType: OrderType;
+  } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = sessionStorage.getItem('reservationOrder');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
+
+  const prefillTableId = urlTableId ?? resCtx?.tableId ?? null;
+  const prefillType    = urlType    ?? resCtx?.orderType ?? null;
   const isPrefilled    = !!(prefillTableId && prefillType);
 
   const STEPS: WizardStep[] = isPrefilled
@@ -90,8 +103,8 @@ function OrderWizard() {
     timing:          'asap',
     scheduledAt:     '',
     tableId:         prefillTableId,
-    tableNumber:     null,
-    tableCapacity:   null,
+    tableNumber:     resCtx?.tableNumber ?? null,
+    tableCapacity:   resCtx?.tableCapacity ?? null,
     paymentMethod:   null,
   });
 
@@ -99,7 +112,7 @@ function OrderWizard() {
   const [floorLoading, setFloorLoading] = useState(false);
 
   useEffect(() => {
-    if (prefillTableId) {
+    if (prefillTableId && data.tableNumber === null) {
       apiFetch<FloorTable[]>('/api/tables')
         .then((all) => {
           const found = all.find((t) => t.id === prefillTableId);
@@ -189,6 +202,7 @@ function OrderWizard() {
 
       await apiFetch('/api/orders', { method: 'POST', body });
       clearCart();
+      sessionStorage.removeItem('reservationOrder');
       router.push('/order/success');
     } catch (err) {
       if (err instanceof ApiError) {

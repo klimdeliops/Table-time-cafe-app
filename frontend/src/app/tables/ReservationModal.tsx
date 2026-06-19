@@ -76,7 +76,13 @@ export function ReservationModal({
   }
 
   function handleOrderNow() {
-    router.push(`/order/new?tableId=${table.id}&orderType=DINE_IN`);
+    sessionStorage.setItem('reservationOrder', JSON.stringify({
+      tableId:       table.id,
+      tableNumber:   table.number,
+      tableCapacity: table.capacity,
+      orderType:     'DINE_IN',
+    }));
+    router.push('/menu');
   }
 
   function handleLater() {

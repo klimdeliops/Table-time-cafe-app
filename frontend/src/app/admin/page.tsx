@@ -13,7 +13,8 @@ type DishCategory =
 type TableStatus = 'FREE' | 'RESERVED' | 'OCCUPIED' | 'CLEANING';
 type UserRole    = 'GUEST' | 'USER' | 'WAITER' | 'ADMIN';
 type OrdStatus   = 'CREATED' | 'CONFIRMED' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
-type AdminTab    = 'analytics' | 'menu' | 'tables' | 'orders' | 'accounts' | 'personnel';
+type AdminTab    = 'analytics' | 'menu' | 'tables' | 'orders' | 'reservations' | 'accounts' | 'personnel';
+type ResStatus   = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
 
 interface Dish {
   id: string; name: string; nameEn: string | null;
@@ -46,6 +47,17 @@ interface Order {
 
 interface Restaurant { id: string; name: string; }
 interface Toast { id: string; message: string; type: 'success' | 'error'; }
+
+interface Reservation {
+  id: string;
+  status: ResStatus;
+  numberOfGuests: number;
+  startTime: string;
+  endTime: string;
+  createdAt: string;
+  user: { id: string; email: string };
+  table: { id: string; number: number; capacity: number };
+}
 
 const DISH_CATEGORIES: DishCategory[] = [
   'hot_drinks', 'cold_drinks', 'breakfast', 'sandwiches',
@@ -231,12 +243,13 @@ function AdminDashboard() {
   const waiters = users.filter(u => u.role === 'WAITER');
 
   const TABS: { key: AdminTab; label: string }[] = [
-    { key: 'analytics', label: t('admin.analyticsSection') },
-    { key: 'menu',      label: t('admin.menuSection')      },
-    { key: 'tables',    label: t('admin.tablesSection')    },
-    { key: 'orders',    label: t('admin.ordersSection')    },
-    { key: 'accounts',  label: t('admin.accountsSection')  },
-    { key: 'personnel', label: t('admin.personnelSection') },
+    { key: 'analytics',    label: t('admin.analyticsSection')    },
+    { key: 'menu',         label: t('admin.menuSection')         },
+    { key: 'tables',       label: t('admin.tablesSection')       },
+    { key: 'orders',       label: t('admin.ordersSection')       },
+    { key: 'reservations', label: t('admin.reservationsSection') },
+    { key: 'accounts',     label: t('admin.accountsSection')     },
+    { key: 'personnel',    label: t('admin.personnelSection')    },
   ];
 
   return (
@@ -284,6 +297,9 @@ function AdminDashboard() {
               <TablesTab waiters={waiters} restaurantId={restaurant.id} addToast={addToast} />
             )}
             {tab === 'orders' && <OrdersAdminTab addToast={addToast} waiters={waiters} />}
+            {tab === 'reservations' && restaurant && (
+              <ReservationsAdminTab restaurantId={restaurant.id} addToast={addToast} />
+            )}
             {tab === 'accounts' && (
               <AccountsTab users={users} setUsers={setUsers} addToast={addToast} />
             )}
@@ -1420,6 +1436,167 @@ function AccountsTab({ users, setUsers, addToast }: {
           confirmLabel={t('common.delete')} danger
           onConfirm={handleDelete} onCancel={() => setConfirmUser(null)} loading={deleteLoading}
         />
+      )}
+    </div>
+  );
+}
+
+const RES_STATUS_STYLE: Record<ResStatus, { bg: string; text: string }> = {
+  PENDING:   { bg: 'bg-gray-100',    text: 'text-gray-600'    },
+  CONFIRMED: { bg: 'bg-blue-100',    text: 'text-blue-700'    },
+  CANCELLED: { bg: 'bg-red-100',     text: 'text-red-600'     },
+  COMPLETED: { bg: 'bg-emerald-100', text: 'text-emerald-700' },
+};
+
+function ReservationsAdminTab({ restaurantId, addToast }: {
+  restaurantId: string;
+  addToast: (msg: string, type: 'success' | 'error') => void;
+}) {
+  const { t } = useLocale();
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [filter, setFilter]             = useState<ResStatus | 'ALL'>('ALL');
+  const [acting, setActing]             = useState<string | null>(null);
+
+  useEffect(() => {
+    apiFetch<{ items: Reservation[]; total: number }>(
+      `/api/reservations/restaurant/${restaurantId}?limit=50`,
+    )
+      .then(res => { setReservations(res.items); setLoading(false); })
+      .catch(() => setLoading(false));
+  }, [restaurantId]);
+
+  const STATUS_FILTERS: { key: ResStatus | 'ALL'; label: string }[] = [
+    { key: 'ALL',       label: t('admin.filterAll')             },
+    { key: 'PENDING',   label: t('reservation.status.PENDING')  },
+    { key: 'CONFIRMED', label: t('reservation.status.CONFIRMED')},
+    { key: 'COMPLETED', label: t('reservation.status.COMPLETED')},
+    { key: 'CANCELLED', label: t('reservation.status.CANCELLED')},
+  ];
+
+  const visible = filter === 'ALL' ? reservations : reservations.filter(r => r.status === filter);
+
+  async function doAction(res: Reservation, action: 'confirm' | 'complete' | 'cancel') {
+    setActing(res.id + action);
+    try {
+      const updated = await apiFetch<Reservation>(
+        `/api/reservations/${res.id}/${action}`,
+        { method: 'PATCH' },
+      );
+      setReservations(prev => prev.map(r => r.id === updated.id ? updated : r));
+      addToast(t('admin.saved'), 'success');
+    } catch {
+      addToast(t('admin.errorSaving'), 'error');
+    } finally {
+      setActing(null);
+    }
+  }
+
+  const terminal = new Set<ResStatus>(['CANCELLED', 'COMPLETED']);
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div>
+          <h2 className={sectionTitle}>{t('admin.allReservations')}</h2>
+          <p className="text-xs text-brand-espresso/50 mt-0.5">
+            {reservations.filter(r => !terminal.has(r.status)).length} активных · {reservations.length} всего
+          </p>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto scrollbar-none">
+        <div className="flex gap-1 p-1 glass-card rounded-xl min-w-max">
+          {STATUS_FILTERS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
+                filter === key ? 'bg-brand-espresso text-brand-cream' : 'text-brand-espresso/60 hover:text-brand-espresso'
+              }`}
+            >
+              {label}
+              {key !== 'ALL' && (
+                <span className="ml-1 opacity-60">
+                  ({reservations.filter(r => r.status === key).length})
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="space-y-2">{[...Array(5)].map((_, i) => <Shimmer key={i} className="h-20" />)}</div>
+      ) : visible.length === 0 ? (
+        <p className="text-sm text-brand-espresso/50 text-center py-12">{t('admin.noReservations')}</p>
+      ) : (
+        <div className="space-y-3">
+          {visible.map(res => {
+            const style = RES_STATUS_STYLE[res.status];
+            const canAct = !terminal.has(res.status);
+            const start = new Date(res.startTime);
+            const end   = new Date(res.endTime);
+            const fmt = (d: Date) =>
+              d.toLocaleString('ru', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+
+            return (
+              <div key={res.id} className="glass-card rounded-2xl p-4 space-y-3">
+                <div className="flex items-start justify-between gap-3 flex-wrap">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-mono text-xs font-bold text-brand-espresso/70">
+                        #{res.id.slice(0, 8).toUpperCase()}
+                      </span>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${style.bg} ${style.text}`}>
+                        {t(`reservation.status.${res.status}`)}
+                      </span>
+                      <span className="text-xs bg-brand-espresso/8 text-brand-espresso/65 px-2 py-0.5 rounded-full">
+                        {t('admin.tableNumber')}{res.table.number}
+                      </span>
+                    </div>
+                    <p className="text-xs text-brand-espresso/45">
+                      {res.user.email} · {res.numberOfGuests} {t('admin.reservationGuests')}
+                    </p>
+                    <p className="text-xs text-brand-espresso/45">
+                      {fmt(start)} — {fmt(end)}
+                    </p>
+                  </div>
+                </div>
+
+                {canAct && (
+                  <div className="flex gap-2 flex-wrap">
+                    {res.status === 'PENDING' && (
+                      <button
+                        onClick={() => doAction(res, 'confirm')}
+                        disabled={!!acting}
+                        className="btn-amber text-xs px-4 py-1.5 disabled:opacity-60"
+                      >
+                        {acting === res.id + 'confirm' ? t('common.loading') : t('admin.confirmReservation')}
+                      </button>
+                    )}
+                    {res.status === 'CONFIRMED' && (
+                      <button
+                        onClick={() => doAction(res, 'complete')}
+                        disabled={!!acting}
+                        className="btn-amber text-xs px-4 py-1.5 disabled:opacity-60"
+                      >
+                        {acting === res.id + 'complete' ? t('common.loading') : t('admin.completeReservation')}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => doAction(res, 'cancel')}
+                      disabled={!!acting}
+                      className="text-xs px-4 py-1.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 font-medium transition-colors disabled:opacity-60"
+                    >
+                      {acting === res.id + 'cancel' ? t('common.loading') : t('admin.cancelReservation')}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

@@ -259,9 +259,17 @@ export interface Dictionary {
     completedToday:     string;
     assignedTables:     string;
     noAssignedTables:   string;
-    allOrders:          string;
-    orderTable:         string;
-    orderTotal:         string;
+    allOrders:              string;
+    orderTable:             string;
+    orderTotal:             string;
+    reservationsSection:    string;
+    allReservations:        string;
+    noReservations:         string;
+    confirmReservation:     string;
+    completeReservation:    string;
+    cancelReservation:      string;
+    reservationGuests:      string;
+    reservationTime:        string;
   };
 
   staff: {
