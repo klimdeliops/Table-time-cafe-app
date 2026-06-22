@@ -106,7 +106,7 @@ DTO-файлы описывают структуру входных данных
         \texttt{CONFIRMED}, \texttt{PREPARING}, \texttt{READY},
         \texttt{COMPLETED}, \texttt{CANCELLED};
   \item \textbf{ReservationStatus}~--- статус бронирования:
-        \texttt{PENDING}, \texttt{CONFIRMED}, \texttt{CANCELLED},
+        \texttt{PENDING}, \texttt{CONFIRMED}, \\ \texttt{CANCELLED},
         \texttt{COMPLETED};
   \item \textbf{PaymentMethod}~--- способ оплаты: \texttt{CASH},
         \texttt{CARD}.
@@ -205,11 +205,10 @@ Prisma Migrate. Каждая миграция представляет собо�
 
 \textbf{Миграция~2~--- add\_reservation\_status (25.04.2026)}
 
-Добавляет перечисление \texttt{ReservationStatus} (\texttt{PENDING},
-\texttt{CONFIRMED}, \texttt{CANCELLED}, \texttt{COMPLETED}) и одноимённое
-поле в таблицу \texttt{reservations} со значением по умолчанию
-\texttt{PENDING}. Вводит жизненный цикл бронирования, управляемый
-статусами.
+Добавляет перечисление \texttt{ReservationStatus} со значениями
+\texttt{PENDING}, \texttt{CONFIRMED}, \texttt{CANCELLED}, \texttt{COMPLETED}
+и одноимённое поле в таблицу \\ \texttt{reservations} со значением по умолчанию
+\texttt{PENDING}. Вводит жизненный цикл бронирования, управляемый статусами.
 
 \textbf{Миграция~3~--- add\_missing\_order\_fields (27.04.2026)}
 
@@ -469,7 +468,7 @@ PATCH  & /api/orders/:id/cancel          & Авторизован+ &
         разделам системы.
 \end{itemize}
 
-На фронтенде защита маршрутов реализована через компонент
+На фронтенде защита маршрутов реализована через компонент \\
 \texttt{ProtectedPage}, который проверяет текущую роль пользователя
 и перенаправляет на главную страницу при отсутствии необходимых прав
 доступа.
